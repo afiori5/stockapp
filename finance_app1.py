@@ -1,45 +1,44 @@
 import yfinance as yf
 import streamlit as st
+import pandas as pd
 
 st.title('Stock Data App')
-
-ticker = st.text_input('Enter a stock ticker', 'AAPL')
-data = yf.Ticker(ticker)
-st.write(f"{ticker} stock data: {data.info}")
-
-def fetch_stock_data(ticker):
-    stock = yf.Ticker(ticker)
-    stock_info = stock.history(period="1d")
-    latest_close = stock_info['Close'][0]
-    volume = stock_info['Volume'][0]
-    return latest_close, volume
-
-if __name__ == "__main__":
-    tickers = ["AAPL", "GOOGL", "AMZN"]  # You can add more tickers here
-
-    print("Fetching stock data...")
-    for ticker in tickers:
-        latest_close, volume = fetch_stock_data(ticker)
-        print(f"{ticker}: Latest Close Price = ${latest_close}, Volume = {volume}")
-
 import time
 
-run = st.button("Run")
-stop = st.button("Stop")
+# Title
+st.title('3-Month Stock Ticker Tracker')
+
+# User input for stock ticker
+ticker = st.text_input('Enter the stock ticker you want to track:', 'AAPL')
+
+# Time interval for refresh in seconds (set to 60 seconds)
+refresh_time = 60
+
+st.write(f"Refreshing data every {refresh_time} seconds.")
+
+run = st.button('Run')
+stop = st.empty()  # Placeholder for the 'Stop' button
 
 if run:
-    st.write("Loop started.")
-    for i in range(100):
-        # Your loop content here
-        if stop:
-            st.write("Stopped at iteration ", i)
+    st.write("Fetching and displaying data.")
+    
+    while True:
+        # Fetch 3 months of stock data at 1-day intervals
+        data = yf.download(ticker, period="3mo", interval="1d")
+        
+        if data.empty:
+            st.write("Received empty data for ticker ", ticker)
             st.stop()
 
+        # Plot
+        st.subheader(f"{ticker} Price Data for the Past 3 Months")
+        st.line_chart(data['Close'])
 
-while True:
-    for ticker in tickers:
-        latest_close, volume = fetch_stock_data(ticker)
-        print(f"{ticker}: Latest Close Price = ${latest_close}, Volume = {volume}")
-    time.sleep(60)  # Sleep for 60 seconds
+        # Stop button and sleep
+        if stop.button('Stop'):
+            st.write("Stopped.")
+            break
+
+        time.sleep(refresh_time)
 
 
