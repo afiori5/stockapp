@@ -19,6 +19,8 @@ st.write(f"Refreshing data every {refresh_time} seconds.")
 run = st.button('Run')
 stop = st.empty()  # Placeholder for the 'Stop' button
 
+chart_placeholder = st.empty()  # Placeholder for the chart
+
 if run:
     st.write("Fetching and displaying data.")
     
@@ -30,9 +32,8 @@ if run:
             st.write("Received empty data for ticker ", ticker)
             st.stop()
 
-        # Plot
-        st.subheader(f"{ticker} Price Data for the Past 3 Months")
-        st.line_chart(data['Close'])
+        # Update chart
+        chart_placeholder.line_chart(data['Close'])
 
         # Stop button and sleep
         if stop.button('Stop'):
